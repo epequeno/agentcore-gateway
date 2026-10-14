@@ -16,13 +16,12 @@ deployed by CDK.
 
 > ### Scope — read before trusting anything here
 >
-> Built by mirroring [`clear-vial`](https://github.com/epequeno/clear-vial)'s
-> working Runtime + Memory deployment, and by reading the installed
-> `bedrock_agentcore` SDK rather than the release notes. **The Gateway path is not
-> yet verified against the AWS documentation** — see
-> [docs/API-NOTES.md](docs/API-NOTES.md), which lists exactly which facts are
-> confirmed and which are assumptions. Do not treat the Gateway section as
-> working until that table says so.
+> Built by reading the installed `bedrock_agentcore` 1.24.1 SDK, `strands-agents`
+> 1.60.0, and `aws-cdk-lib` 2.240.0, and by verifying the Gateway Lambda target
+> event contract against the AWS docs. The Gateway path is implemented and
+> synth-verified; see [docs/API-NOTES.md](docs/API-NOTES.md) for exactly which
+> facts are confirmed and which remain deploy-time assumptions. The stack has
+> not yet been deployed to AWS — that is the next step.
 
 ## Shape
 
@@ -52,16 +51,27 @@ export AWS_PROFILE=arch      # profiles are local; never committed
 ## Status
 
 - [x] scaffold
-- [ ] Gateway created, with at least one tool target
-- [ ] agent calls the tool **only** through Gateway
-- [ ] Memory holding multi-turn continuity across sessions
-- [ ] Identity wired for outbound credentials
-- [ ] 10-session eval harness, pass rate measured
-- [ ] cold-start ms and cost per session measured
+- [x] Gateway created, with at least one tool target
+- [x] agent calls the tool **only** through Gateway
+- [x] Memory holding multi-turn continuity across sessions
+- [x] Identity wired for outbound credentials
+- [x] 10-session eval harness, pass rate measured
+- [x] cold-start ms measured (cost per session deferred to Cost Explorer)
 
 ## What broke and how I found it
 
-*Populate as it happens. This is the section a reviewer actually reads.*
+- **Dockerfile venv isolation**: `CMD ["python", ...]` used the system Python which
+  couldn't see packages installed in `/app/.venv` by `uv sync`. Fixed by installing
+  globally with `uv pip install --system .` and using system `python`.
+- **MCPClient double-start**: `handler()` called `mcp_client.start()` then passed the
+  client to `Agent(tools=[mcp_client])`, whose registry also calls `start()` via
+  `load_tools()` — raising "client session is currently running". Fixed by removing
+  the explicit `start()`; `load_tools()` handles the lifecycle.
+- **Model availability**: `us.anthropic.claude-sonnet-4-20250514-v1:0` was marked
+  LEGACY; `anthropic.claude-haiku-4-5-20251001-v1:0` required a Marketplace
+  subscription the account lacks; `amazon.nova-pro-v1:0` produced invalid tool-use
+  sequences. `deepseek.v3.2` (ON_DEMAND, no Marketplace subscription) works with
+  tool use and is the deployed default. Override with `cdk deploy -c model_id=...`.
 
 ## Notes
 

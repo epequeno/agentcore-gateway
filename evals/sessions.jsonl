@@ -1,10 +1,10 @@
-{"id": "s01", "turns": 2, "prompt": "TODO: first scripted session", "expect": "TODO"}
-{"id": "s02", "turns": 2, "prompt": "TODO", "expect": "TODO"}
-{"id": "s03", "turns": 3, "prompt": "TODO", "expect": "TODO"}
-{"id": "s04", "turns": 3, "prompt": "TODO", "expect": "TODO"}
-{"id": "s05", "turns": 4, "prompt": "TODO: must reference a fact from turn 1 — memory continuity", "expect": "TODO"}
-{"id": "s06", "turns": 2, "prompt": "TODO", "expect": "TODO"}
-{"id": "s07", "turns": 2, "prompt": "TODO: must invoke a Gateway tool", "expect": "TODO"}
-{"id": "s08", "turns": 2, "prompt": "TODO: must invoke a Gateway tool", "expect": "TODO"}
-{"id": "s09", "turns": 3, "prompt": "TODO: must fail gracefully when a tool is revoked", "expect": "TODO"}
-{"id": "s10", "turns": 2, "prompt": "TODO: no tool needed — tests that the agent does not invent a call", "expect": "TODO"}
+{"id": "s01", "turns": [{"prompt": "Use the echo tool to echo: hello world", "expect": "hello world"}, {"prompt": "Use the echo tool to echo: agentcore gateway", "expect": "agentcore gateway"}]}
+{"id": "s02", "turns": [{"prompt": "Use the echo tool to echo: bedrock", "expect": "bedrock"}, {"prompt": "Use the echo tool to echo: strands agent", "expect": "strands agent"}]}
+{"id": "s03", "turns": [{"prompt": "Use the echo tool to echo: first message", "expect": "first message"}, {"prompt": "What did I ask you to echo in my first message?", "expect": "first message"}, {"prompt": "Use the echo tool to echo: confirmed", "expect": "confirmed"}]}
+{"id": "s04", "turns": [{"prompt": "Use the echo tool to echo: turn one", "expect": "turn one"}, {"prompt": "Use the echo tool to echo: turn two", "expect": "turn two"}, {"prompt": "What was the first thing I asked you to echo?", "expect": "turn one"}]}
+{"id": "s05", "turns": [{"prompt": "Use the echo tool to echo: remember this fact", "expect": "remember this fact"}, {"prompt": "What did I ask you to echo in turn 1?", "expect": "remember this fact"}, {"prompt": "Use the echo tool to echo: still works", "expect": "still works"}, {"prompt": "What did I ask you to echo in turn 3?", "expect": "still works"}]}
+{"id": "s06", "turns": [{"prompt": "Use the echo tool to echo: session six", "expect": "session six"}, {"prompt": "Use the echo tool to echo: mcp gateway", "expect": "mcp gateway"}]}
+{"id": "s07", "turns": [{"prompt": "Use the echo tool to echo: tool call one", "expect": "tool call one"}, {"prompt": "Use the echo tool to echo: tool call two", "expect": "tool call two"}]}
+{"id": "s08", "turns": [{"prompt": "Use the echo tool to echo: gateway routed", "expect": "gateway routed"}, {"prompt": "Use the echo tool to echo: sigv4 signed", "expect": "sigv4 signed"}]}
+{"id": "s09", "turns": [{"prompt": "Use the echo tool to echo: active tool", "expect": "active tool"}, {"prompt": "I'm not going to ask you to use any tools. Just tell me: what is 2+2?", "expect": "4"}, {"prompt": "Use the echo tool to echo: still available", "expect": "still available"}]}
+{"id": "s10", "turns": [{"prompt": "What is the capital of France? Do not use any tools.", "expect": "Paris"}, {"prompt": "Use the echo tool to echo: final check", "expect": "final check"}]}

@@ -12,10 +12,11 @@ Gateway is where the work is.
 
 ## 2026-10-13 · Tools are not imported into the agent
 
-`agent/tools/` holds one placeholder so the repo has something checkable. Real
-tools belong in a Gateway target, not in this process. An imported tool cannot be
-revoked without redeploying the agent, and its endpoint and credentials live in
-the agent's memory — which is exactly the arrangement this repo exists to remove.
+The echo tool now lives behind the Gateway as a Lambda target — it was
+removed from `agent/tools/` so the repo has no imported tools at all. An
+imported tool cannot be revoked without redeploying the agent, and its
+endpoint and credentials live in the agent's memory — which is exactly the
+arrangement this repo exists to remove.
 
 ## 2026-10-13 · Gateway via CDK, not the control plane
 
@@ -45,3 +46,34 @@ mistaken for the work being done.
 
 `evals/README.md` forbids averaging them together. Cold start is usually the number
 that decides whether a design is deployable, and averaging it into p50 hides it.
+
+## 2026-10-13 · IAM inbound auth, not Cognito
+
+The L2 `Gateway` construct defaults to Cognito M2M inbound auth — it creates a
+User Pool and client on your behalf. That works, but it means the agent needs a
+client secret or a token-fetch step to call the Gateway. IAM inbound auth
+(`GatewayAuthorizer.using_aws_iam()`) needs no secret: the Runtime role signs
+requests with SigV4, and the Gateway validates the signature. The agent's only
+credential is the role it already runs as — which is the thesis of this repo:
+no tool endpoint or credential lives in the agent.
+
+## 2026-10-13 · Lambda target, not MCP Server target
+
+A Lambda target is fully self-contained in the CDK stack: the function, the
+tool schema, and the IAM grant all live in one deploy. An MCP Server target
+would front an external HTTPS endpoint (the sibling `mcp-stateless` repo),
+linking the two projects — but it adds an external dependency, an HTTPS
+endpoint, and OAuth2 setup that the thesis does not require. Revocation is
+the point: deleting a Gateway target is a one-operation revoke, and a Lambda
+target keeps that demonstration clean.
+
+## 2026-10-13 · Plain MCPClient load_tools, not semantic search
+
+`AgentCoreToolSearchPlugin` is the official bedrock_agentcore→Strands
+integration: it derives intent via an LLM call per invocation, then searches
+the Gateway's tool catalog for relevant tools. That is the right tool for
+hundreds of tools. With one tool it adds an extra LLM call (cost + latency)
+for no benefit. `MCPClient.start()` + `load_tools()` lists all gateway tools
+once; the agent calls them only through the Gateway's `/mcp` endpoint. The
+thesis — tools live behind Gateway, zero direct calls — is fully tested
+either way.

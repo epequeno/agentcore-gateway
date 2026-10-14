@@ -1,7 +1,15 @@
 # evals — the headline number
 
-**Not implemented.** `just eval` exits non-zero on purpose rather than passing
-silently, so the gap stays visible.
+**Implemented.** `just eval` runs ten scripted multi-turn sessions against a
+deployed Runtime, measuring pass rate, cold-start, and warm latency. Set the
+env vars from `just deploy` outputs first:
+
+```sh
+export AGENTCORE_RUNTIME_ARN=<arn>
+export AGENTCORE_GATEWAY_URL=<url>
+export AGENTCORE_MEMORY_ID=<id>
+just eval
+```
 
 ## The claim being tested
 
@@ -15,6 +23,19 @@ That the tool surface lives in **Gateway**, not in the agent. Two halves:
 Half two is the one that tests the thesis. A pass rate can improve for reasons
 unrelated to where the tools live; only call attribution distinguishes the
 mechanism from a coincidence.
+
+## Sessions
+
+The sessions in `sessions.jsonl` cover:
+
+- **s01–s02**: Basic echo tool invocation (tool routing through Gateway).
+- **s03–s05**: Multi-turn memory continuity — later turns reference facts from
+  earlier turns, testing that AgentCore Memory retains conversation history.
+- **s06–s08**: Repeated tool calls to confirm the Gateway routes every call.
+- **s09**: Graceful degradation — the agent uses a tool, then answers a
+  no-tool question without inventing a call, then uses the tool again.
+- **s10**: No-tool baseline — the agent answers from knowledge alone, then
+  uses a tool, proving it doesn't invent calls when none are needed.
 
 ## What to record
 

@@ -25,3 +25,47 @@ def test_missing_actor_is_not_empty() -> None:
 def test_explicit_session_id_wins() -> None:
     _, session = session_ids({"actorId": "a1", "sessionId": "s9"})
     assert session == "s9"
+
+
+def test_gateway_url_unset_defaults_empty(monkeypatch) -> None:
+    monkeypatch.delenv("AGENTCORE_GATEWAY_URL", raising=False)
+    assert load().gateway_url == ""
+
+
+def test_gateway_url_round_trips(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "AGENTCORE_GATEWAY_URL", "https://abc.gateway.bedrock-agentcore.us-east-1.amazonaws.com"
+    )
+    assert load().gateway_url == "https://abc.gateway.bedrock-agentcore.us-east-1.amazonaws.com"
+
+
+def test_gateway_mcp_url_appends_mcp(monkeypatch) -> None:
+    # The CDK Gateway.gateway_url attribute is the base URL; the MCP
+    # endpoint lives at /mcp on it. settings is a module-level singleton loaded
+    # at import time, so patch the attribute directly.
+    from agent import config
+    from agent.app import _gateway_mcp_url
+
+    monkeypatch.setattr(
+        config.settings,
+        "gateway_url",
+        "https://gw.gateway.bedrock-agentcore.us-east-1.amazonaws.com",
+    )
+    assert _gateway_mcp_url() == "https://gw.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp"
+
+
+def test_gateway_mcp_url_empty_when_unset(monkeypatch) -> None:
+    from agent import config
+    from agent.app import _gateway_mcp_url
+
+    monkeypatch.setattr(config.settings, "gateway_url", "")
+    assert _gateway_mcp_url() == ""
+
+
+def test_gateway_mcp_url_idempotent(monkeypatch) -> None:
+    # If the URL already ends with /mcp, don't append it again.
+    from agent import config
+    from agent.app import _gateway_mcp_url
+
+    monkeypatch.setattr(config.settings, "gateway_url", "https://gw.example.com/mcp")
+    assert _gateway_mcp_url() == "https://gw.example.com/mcp"

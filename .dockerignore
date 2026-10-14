@@ -1,0 +1,14 @@
+.venv
+infra
+tests
+evals
+docs
+.git
+.github
+.pytest_cache
+.ruff_cache
+cdk.out
+__pycache__
+*.pyc
+CACHEDIR.TAG
+LOCAL.md

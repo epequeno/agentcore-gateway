@@ -29,17 +29,17 @@ verify: lint test synth
 synth: sync
     @cd infra && uv run cdk synth --quiet
 
-# Runtime + Memory only. The Gateway is NOT in the stack yet — see docs/API-NOTES.md.
+# Runtime + Memory + Gateway + Lambda tool target.
 deploy: sync
     @cd infra && uv run cdk deploy --require-approval never
 
 invoke: sync
     @uv run python -m evals.run --smoke
 
-# The headline number. Not implemented, so it exits non-zero rather than passing.
+# Run the ten-session eval against a deployed Runtime. Set env vars first:
+# export AGENTCORE_RUNTIME_ARN=<arn> AGENTCORE_GATEWAY_URL=<url> AGENTCORE_MEMORY_ID=<id>
 eval: sync
-    @echo "eval not implemented yet — see evals/README.md"
-    @exit 1
+    @uv run python -m evals.run
 
 # Always run this. An idle AgentCore Runtime still bills.
 down: sync
