@@ -3,6 +3,9 @@
 Every number here is produced by a command in this repo and dated. A row with no
 date has not been measured — and a number without its command is not evidence.
 
+**Measured at commit `fc9abe3`**, the tree that was deployed, on 2026-10-13.
+Later commits change the repo, not these numbers.
+
 ## Headline
 
 | Metric | Value | Command | n | Date |
@@ -36,6 +39,24 @@ Sessions s03 and s05 confirm multi-turn memory continuity via AgentCore Memory:
   without inventing a tool call. ✅
 - **s10 turn 1**: "What is the capital of France?" without a tool → agent answers
   "Paris" without calling echo. ✅
+
+## Limitations
+
+Read this before quoting anything above.
+
+- **The pass rate does not test the thesis.** `_check_pass` is a case-insensitive
+  substring test, and 20 of the 25 expected strings appear verbatim inside their
+  own prompt — so a run with **no tool access at all** would also score 100%. The
+  no-tool baseline below shows the model answering without tools. The harness
+  records `tool_calls_via_gateway` as *not measured*, and the row above was
+  confirmed by hand with `aws logs tail`, not by `just eval`. Automating per-turn
+  tool-call attribution is the next change to make.
+- **Cost per session is unmeasured.** The stack has been torn down, so it needs
+  AWS Cost Explorer or a redeploy.
+- **One deployment, one run.** 10 sessions and 25 turns is a smoke test, not a
+  distribution; the latency figures come from 24 warm invocations.
+- Cold start (14.6 s) is reported separately from warm latency rather than averaged
+  in, because container start dominates it and averaging would hide it.
 
 ## How to reproduce
 

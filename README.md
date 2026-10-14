@@ -7,21 +7,22 @@ turn a tool off. This repo is a Strands agent on AgentCore **Runtime** whose too
 arrive only via **Gateway**, with **Memory** holding multi-turn continuity, all
 deployed by CDK.
 
-> ### TODO — not yet measured
+> ### Measured — 2026-10-13, at `fc9abe3`
 >
-> **No numbers exist yet.** What this repo is aiming at: eval pass rate over 10
-> scripted multi-turn sessions, cold-start milliseconds, and cost per session.
-> Record them in [RESULTS.md](RESULTS.md). Until a row exists there, this README
-> makes no claim about performance or cost.
+> 100% pass rate (10/10 sessions, 25/25 turns) · cold start **14,572 ms** · warm
+> p50 **3,655 ms**. Cost per session is **not measured**. The pass rate is a
+> substring check that a run with **no tool access** would also satisfy — read the
+> limitations in [RESULTS.md](RESULTS.md) before quoting it.
 
 > ### Scope — read before trusting anything here
 >
 > Built by reading the installed `bedrock_agentcore` 1.24.1 SDK, `strands-agents`
 > 1.60.0, and `aws-cdk-lib` 2.240.0, and by verifying the Gateway Lambda target
-> event contract against the AWS docs. The Gateway path is implemented and
-> synth-verified; see [docs/API-NOTES.md](docs/API-NOTES.md) for exactly which
-> facts are confirmed and which remain deploy-time assumptions. The stack has
-> not yet been deployed to AWS — that is the next step.
+> event contract against the AWS docs. The Gateway path is implemented, deployed and
+> evaluated; see [docs/API-NOTES.md](docs/API-NOTES.md) for exactly which facts
+> are confirmed and which remain deploy-time assumptions. The stack was deployed
+> on 2026-10-13, measured, then torn down — nothing is live, so the numbers cannot
+> be reproduced without redeploying.
 
 ## Shape
 
@@ -54,7 +55,8 @@ export AWS_PROFILE=arch      # profiles are local; never committed
 - [x] Gateway created, with at least one tool target
 - [x] agent calls the tool **only** through Gateway
 - [x] Memory holding multi-turn continuity across sessions
-- [x] Identity wired for outbound credentials
+- [ ] AgentCore Identity wired — **not used**: inbound auth is IAM SigV4, which is
+      a different mechanism
 - [x] 10-session eval harness, pass rate measured
 - [x] cold-start ms measured (cost per session deferred to Cost Explorer)
 
