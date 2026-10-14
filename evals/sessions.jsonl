@@ -1,0 +1,10 @@
+{"id": "s01", "turns": 2, "prompt": "TODO: first scripted session", "expect": "TODO"}
+{"id": "s02", "turns": 2, "prompt": "TODO", "expect": "TODO"}
+{"id": "s03", "turns": 3, "prompt": "TODO", "expect": "TODO"}
+{"id": "s04", "turns": 3, "prompt": "TODO", "expect": "TODO"}
+{"id": "s05", "turns": 4, "prompt": "TODO: must reference a fact from turn 1 — memory continuity", "expect": "TODO"}
+{"id": "s06", "turns": 2, "prompt": "TODO", "expect": "TODO"}
+{"id": "s07", "turns": 2, "prompt": "TODO: must invoke a Gateway tool", "expect": "TODO"}
+{"id": "s08", "turns": 2, "prompt": "TODO: must invoke a Gateway tool", "expect": "TODO"}
+{"id": "s09", "turns": 3, "prompt": "TODO: must fail gracefully when a tool is revoked", "expect": "TODO"}
+{"id": "s10", "turns": 2, "prompt": "TODO: no tool needed — tests that the agent does not invent a call", "expect": "TODO"}
