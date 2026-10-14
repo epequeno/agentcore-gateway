@@ -26,11 +26,18 @@ test: sync
 # The gate: lint, tests, and the CDK stack must synthesise.
 verify: lint test synth
 
-synth: sync
+# The CDK CLI is a Node tool, not a pip package: aws-cdk-lib provides the
+# constructs but not the executable. Fail loudly rather than with a bare
+# "Failed to spawn: cdk".
+cdk-toolchain:
+    @command -v cdk >/dev/null || { echo "cdk CLI missing — run: npm install -g aws-cdk"; exit 1; }
+    @cdk --version
+
+synth: sync cdk-toolchain
     @cd infra && uv run cdk synth --quiet
 
 # Runtime + Memory + Gateway + Lambda tool target.
-deploy: sync
+deploy: sync cdk-toolchain
     @cd infra && uv run cdk deploy --require-approval never
 
 invoke: sync
@@ -42,7 +49,7 @@ eval: sync
     @uv run python -m evals.run
 
 # Always run this. An idle AgentCore Runtime still bills.
-down: sync
+down: sync cdk-toolchain
     @cd infra && uv run cdk destroy --force
 
 check: verify

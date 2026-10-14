@@ -42,8 +42,9 @@ redeploy of the agent.
 
 ```sh
 uv sync                      # install (uv, Python 3.12+)
+npm install -g aws-cdk       # the CDK CLI is a Node tool, not a pip package
 just verify                  # lint, tests, cdk synth
-just deploy                  # Runtime + Memory via CDK
+just deploy                  # Runtime + Memory + Gateway via CDK
 just invoke                  # one smoke invocation
 just down                    # tear down — the Runtime bills while it exists
 export AWS_PROFILE=arch      # profiles are local; never committed
