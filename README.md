@@ -61,6 +61,10 @@ export AWS_PROFILE=arch      # profiles are local; never committed
 - [x] 10-session eval harness, pass rate measured
 - [x] cold-start ms measured (cost per session deferred to Cost Explorer)
 
+**Planned:** the extension from a Gateway demo to a governed agent platform —
+phases 0–7, each paired with the control it buys — is in
+[docs/ROADMAP.md](docs/ROADMAP.md). Next: phases 0–1, 2026-11-16.
+
 ## What broke and how I found it
 
 - **Dockerfile venv isolation**: `CMD ["python", ...]` used the system Python which

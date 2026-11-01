@@ -45,12 +45,12 @@ Read from `bedrock_agentcore` 1.24.1, `strands-agents` 1.60.0, `mcp` 2.1.1,
 | Gateway target Lambda event: `event` is a map of inputSchema properties to values; `context.client_context.custom["bedrockAgentCoreToolName"]` carries the prefixed tool name; return `{"statusCode": 200, "body": json.dumps(result)}` | AWS docs (gateway-add-target-lambda.html) |
 | A Gateway CAN front an existing MCP server (`add_mcp_server_target(endpoint=...)`) — auto-discovers tools via `tools/list` sync | CDK docs `McpServerTargetConfigurationProperty` |
 | `bedrock-agentcore` 1.24.1, `strands-agents` 1.60.0, `mcp-proxy-for-aws` 1.7.0, `mcp` 2.1.1 resolve from normal PyPI | `uv.lock` |
+| Runtime, Memory and Gateway deploy **and invoke** in `us-east-1` | the 2026-10-13 deploy at `fc9abe3`: 10 sessions, 25 turns, numbers in `RESULTS.md`. Deploy evidence rather than documentation — other regions remain unchecked, and Registry GA is not in `us-east-1` |
 
 ## Unverified — deploy-time only
 
 | Assumption | Why it is risky |
 |---|---|
-| Whether Gateway is available in `us-east-1`, and in which regions it is not | Region availability is exactly the kind of fact that fails at deploy time |
 | **Pricing** for Runtime, Memory, and Gateway | Never checked on this project. `RESULTS.md` asks for cost per session, so this must be known before the eval can report it |
 | The CDK deployment role needs `iam:CreateServiceLinkedRole` for AgentCore service-linked roles | Stated in the CDK module docs; not yet tested with this account |
 

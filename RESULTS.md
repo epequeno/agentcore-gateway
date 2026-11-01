@@ -50,7 +50,9 @@ Read this before quoting anything above.
   no-tool baseline below shows the model answering without tools. The harness
   records `tool_calls_via_gateway` as *not measured*, and the row above was
   confirmed by hand with `aws logs tail`, not by `just eval`. Automating per-turn
-  tool-call attribution is the next change to make.
+  tool-call attribution is still open — it is phase 1 in
+  [docs/ROADMAP.md](docs/ROADMAP.md) — so until then this row is a log
+  inspection, not a harness output.
 - **Cost per session is unmeasured.** The stack has been torn down, so it needs
   AWS Cost Explorer or a redeploy.
 - **One deployment, one run.** 10 sessions and 25 turns is a smoke test, not a
