@@ -27,6 +27,24 @@ def test_explicit_session_id_wins() -> None:
     assert session == "s9"
 
 
+def test_policy_session_id_keeps_safe_values() -> None:
+    # The Gateway accepts only [A-Za-z0-9-] up to 128 characters.
+    from agent.app import policy_session_id
+
+    assert policy_session_id("eval-s01-abc123") == "eval-s01-abc123"
+
+
+def test_policy_session_id_replaces_unsafe_values() -> None:
+    from agent.app import policy_session_id
+
+    first = policy_session_id("conversation/with spaces & symbols")
+    second = policy_session_id("conversation/with spaces & symbols")
+    assert first == second
+    assert first.startswith("session-")
+    assert len(first) <= 128
+    assert all(c.isalnum() or c == "-" for c in first)
+
+
 def test_gateway_url_unset_defaults_empty(monkeypatch) -> None:
     monkeypatch.delenv("AGENTCORE_GATEWAY_URL", raising=False)
     assert load().gateway_url == ""
@@ -69,3 +87,37 @@ def test_gateway_mcp_url_idempotent(monkeypatch) -> None:
 
     monkeypatch.setattr(config.settings, "gateway_url", "https://gw.example.com/mcp")
     assert _gateway_mcp_url() == "https://gw.example.com/mcp"
+
+
+class _Msg:
+    def __init__(self, role: str, text: str) -> None:
+        self._data = {"role": role, "content": {"text": text}}
+
+
+def test_memory_turns_are_reversed_into_chronological_order() -> None:
+    # get_last_k_turns returns newest-first; passing that to the model reversed
+    # the conversation and made s04 answer with the wrong turn.
+    from agent.memory import _turns_to_messages
+
+    newest_first = [
+        [_Msg("USER", "third"), _Msg("ASSISTANT", "third answer")],
+        [_Msg("USER", "first"), _Msg("ASSISTANT", "first answer")],
+    ]
+    messages = _turns_to_messages(newest_first)
+    assert [m["content"][0]["text"] for m in messages] == [
+        "first",
+        "first answer",
+        "third",
+        "third answer",
+    ]
+
+
+def test_handler_rejects_a_missing_user_token(monkeypatch) -> None:
+    # The Gateway now requires a JWT; an invocation without one must fail
+    # before any tool call, not fall back to a model-only answer.
+    from agent import app as app_module
+
+    monkeypatch.setattr(app_module.settings, "model_id", "test-model")
+    monkeypatch.setattr(app_module.settings, "gateway_url", "https://gw.example.com")
+    result = app_module.handler({"prompt": "hello", "sessionId": "s" * 33})
+    assert "authToken" in result["error"]

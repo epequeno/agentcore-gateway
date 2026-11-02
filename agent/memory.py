@@ -71,8 +71,20 @@ def retrieve_turns(actor: str, session: str, k: int = 10) -> list[dict[str, Any]
         logger.warning("Memory retrieval failed: %s", e)
         return []
 
+    return _turns_to_messages(turns)
+
+
+def _turns_to_messages(turns) -> list[dict[str, Any]]:
+    """Flatten turns into chronological Strands messages.
+
+    ``get_last_k_turns`` returns newest-first, despite its docstring saying
+    "last K" without an order: on 2026-11-01 a three-turn session came back as
+    [turn 3, turn 2, turn 1]. Passing that to the model reverses the
+    conversation, which made the agent answer "turn two" when asked for the
+    first thing it echoed. Reverse before flattening.
+    """
     messages: list[dict[str, Any]] = []
-    for turn in turns:
+    for turn in reversed(turns):
         for event_message in turn:
             # EventMessage wraps {"role": "USER"|"ASSISTANT", "content": {"text": "..."}}
             raw = event_message._data if hasattr(event_message, "_data") else event_message

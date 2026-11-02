@@ -1,7 +1,13 @@
 """CDK app entry point."""
 
+import sys
+from pathlib import Path
+
 import aws_cdk as cdk
-from stacks.agentcore import AgentCoreStack
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from stacks.agentcore import AgentCoreStack  # noqa: E402
 
 app = cdk.App()
 

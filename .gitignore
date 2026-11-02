@@ -13,6 +13,9 @@ cdk.out/
 # Local-only values: account id, profile, resource ids.
 LOCAL.md
 
+# Eval output (the committed record is RESULTS.md)
+results/
+
 # Environment
 .env
 .env.*
