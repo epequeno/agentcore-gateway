@@ -367,7 +367,9 @@ class AgentCoreStack(cdk.Stack):
         runtime_role.add_to_policy(
             iam.PolicyStatement(
                 actions=["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
-                # TODO: narrow to specific model ARNs once the model is fixed.
+                # Broad by design, not by omission: `model_id` is a deploy-time
+                # context parameter, so a single model ARN would break the
+                # documented deploy path. See docs/DECISIONS.md, 2026-11-02.
                 resources=["*"],
             )
         )

@@ -306,3 +306,35 @@ account-level bootstrap infrastructure. They are reported, not deleted: they
 predate this application and other CDK apps may depend on them. The ship claim
 is therefore "no application resource remains billing", with the retained
 bootstrap storage named in `RESULTS.md`.
+
+## 2026-11-02 · The Runtime's Bedrock grant stays broad, because the model is a parameter
+
+The runtime role grants `bedrock:InvokeModel` and
+`bedrock:InvokeModelWithResponseStream` on `resources=["*"]`. That was a
+leftover TODO — "narrow to specific model ARNs once the model is fixed" — and
+the premise is wrong: the model is **not** fixed. `model_id` is a CDK context
+parameter (`cdk deploy -c model_id=...`, default `deepseek.v3.2`) because the
+judge model and the agent model have to be swappable to run the evaluator
+comparison. Pinning one foundation-model ARN, or one inference-profile ARN,
+would break the documented deploy path and would fail at runtime rather than at
+synth — the failure this repo is designed to avoid.
+
+The grant's real scope is narrower than the wildcard suggests: the only
+resources `bedrock:InvokeModel` can reach are model and inference-profile ARNs,
+so this grants invoke on whatever model the deploy selects and nothing else.
+
+Tightening it is deliberately an unscheduled change, and it needs a deploy to
+verify, not a synth. Two paths if that ever becomes worth doing:
+
+1. **Drop the knob.** Pin a single inference-profile ARN, remove `model_id`
+   from context and from the evaluator comparison, and accept that the judge
+   model can no longer be changed per deploy.
+2. **Keep the knob, scope the ARN set.** Grant
+   `arn:${partition}:bedrock:${region}:${account}:inference-profile/${model_id}`
+   plus the foundation models it routes to, and re-run `just identity-check`
+   and `just eval` to prove the route still resolves — a cross-region inference
+   profile invokes foundation models in other regions, which is where a
+   too-tight policy breaks in production and not in review.
+
+Until then the broad grant is a stated design consequence, not an oversight, and
+this entry is what a reviewer should read instead of the missing narrowing.
