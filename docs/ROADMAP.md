@@ -67,7 +67,7 @@ than a feature tour. A phase that exists only to "cover" a service gets cut.
 |---|---|---|---|---|
 | **0. Re-baseline** | SDKs to current, AgentCore CLI v1, old numbers either re-measured or marked historical | Numbers that still reproduce | — | pins current in `pyproject.toml`/`uv.lock`; `just verify` green; every `RESULTS.md` row dated or marked historical at `fc9abe3` |
 | **1. Observe and evaluate** | ADOT/OTel spans → CloudWatch Transaction Search → Observability; Evaluations with built-ins, one code-based Lambda evaluator and `FailureAnalysis`; the same spans scored in Arize Phoenix | An evaluation that survives "a no-tool run would also pass this", with portability across platforms | Observability, Evaluations | **met 2026-11-01, with one documented deviation**: every model/tool call has spans; batch evaluation over 11 sessions; the code evaluator fails a seeded violation; `FailureAnalysis` returns grouped insights; `EVAL-COMPARISON.md` reports two pairs, not three — faithfulness was cut because `echo` retrieves nothing |
-| **2. Identity** | JWT inbound authorizer (Cognito), request interceptor, IAM-only MCP target | The agent acts **on behalf of a user**, and the tool sees that user | Identity, Gateway | **met 2026-11-01**: 401 unauthenticated; token `sub` returned as principal; target deletion removes the tool without a Runtime redeploy; see [IDENTITY.md](IDENTITY.md) |
+| **2. Identity** | JWT inbound authorizer (Cognito), request interceptor, IAM-only MCP target | The agent acts **on behalf of a user**, and the tool sees that user | Identity, Gateway | **met 2026-11-01 on three of four criteria**: 401 unauthenticated; token `sub` returned as principal; target deletion removes the tool without a Runtime redeploy. The fourth — a hosted consent portal flow captured as a trace — is **not delivered**: the portal rejects Cognito sign-in with `SignInRejected` and is recorded as a rejected path in `RESULTS.md`, not passed. See [IDENTITY.md](IDENTITY.md) |
 | **3. Policy** | Cedar/Dogwood engine on the Gateway: parameter rules, a temporal rule, one natural-language-authored policy | Deterministic limits enforced outside the agent's code | Policy | **met 2026-11-02**: `amount=101` denied (100 allowed); the agent reports the policy refusal; the second CRM call in a policy session is denied; CloudWatch `AllowDecisions`/`DenyDecisions` are recorded. See [POLICY.md](POLICY.md) |
 | **4. Tool surface** | OpenAPI target, Step Functions connector target, Code Interpreter and Browser as tools | Heterogeneous tools under one auth boundary and one policy engine | Gateway, Code Interpreter, Browser | **met 2026-11-02**: seven tools across six targets; one call each passed; Code Interpreter and Browser stay behind an MCP server target; Gateway metrics name the tools and target types. See [TOOL-SURFACE.md](TOOL-SURFACE.md) |
 | **5. Registry** | agent and tools published as catalog entries, semantic search | Discovery and reuse across an org — the thing that makes it a platform | Registry | **met 2026-11-02**: `agentcore-gateway-agent` (`AGENT`, custom descriptor) and `agentcore-gateway-tools` (`MCP`, seven tools) are APPROVED; a fresh data-plane caller finds the agent by natural-language search and its descriptor's runtime ARN equals `AGENTCORE_RUNTIME_ARN`. See [REGISTRY.md](REGISTRY.md) |
@@ -78,6 +78,8 @@ Twelve of thirteen services; Payments is out of scope for a support-operations
 domain.
 
 ## Known preconditions for phases 0–1
+
+**Historical — written before the work, and every item below was resolved on 2026-11-01.** Kept because it records what was unknown at the start; read it as a pre-flight list, not as current state.
 
 Recorded 2026-11-01, after reading the tree rather than the plan:
 
@@ -95,32 +97,24 @@ Recorded 2026-11-01, after reading the tree rather than the plan:
 - **Cost per case does not exist yet.** Tokens per case come from spans; the
   price has to be recorded beside it.
 
-## Open decisions
+## Open decisions — all three closed on 2026-11-01/02
 
-- **Faithfulness has nothing to be faithful to.** The only tool is `echo` and 20
-  of 25 expected strings appear in their own prompt. Either add a retrieval-shaped
-  tool plus grounded sessions, or cut that row and say phase 1 measured two pairs.
-- **Judge model.** One Bedrock model on both sides, recorded next to the table.
-  `README.md` records why two candidates are unavailable in this account.
-- **Region.** Everything is `us-east-1`. The roadmap's earlier note said Registry
-  GA lived only in `us-east-2`, `eu-central-1`, `eu-west-2` and
-  `ca-central-1`; on 2026-11-02 the `agent-registry` control and data-plane
-  endpoints worked in `us-east-1` and the phase 5 deploy succeeded there. Treat
-  the old region claim as stale, not as a constraint.
+- **Faithfulness has nothing to be faithful to — resolved by cutting the row.** The only tool is `echo` and 20 of 25 expected strings appear in their own prompt. Phase 1 reports two pairs, not three, and `docs/EVAL-COMPARISON.md` says why. The alternative (add a retrieval-shaped tool and grounded sessions) is a different project.
+- **Judge model — resolved.** One Bedrock model (`deepseek.v3.2`) on both sides, recorded next to the table. `README.md` records why two candidates are unavailable in this account.
+- **Region — resolved, and the old claim was wrong.** On 2026-11-02 the `agent-registry` control and data-plane endpoints worked in `us-east-1` and the phase 5 deploy succeeded there. The earlier "GA is us-east-2 only" note is stale and is not a constraint.
 
 ## Sequencing with the durable-eval project
 
-Phases 0–1 land first: the durable project's experiment depends on trace-based
-evaluation working, and the fastest way to learn its edges is on the repo that
-already has a deployed agent and ten scripted sessions. Then durable phases 0–3,
-then phases 2–7 here.
+**Superseded 2026-11-02.** The plan was phases 0–1 here, then durable phases 0–3, then phases 2–7. Phases 0–7 landed in one run, so the dependency the durable project was waiting on now exists: span-based evaluation, a code evaluator that can fail, and a Phoenix comparison are all in this repo. The durable project should consume that instrumentation rather than rebuild it, and its own Phases 0–3 are what remains of the original order.
 
 ## Budget
 
 $80 for the whole extension, separate from the durable project's cap. Runtime
 idle time and evaluation tokens are the expensive parts; tear down after each
 measurement session. The Phoenix comparison roughly doubles phase 1's judge
-spend — ten sessions across three evaluator pairs is 60 judge calls, not 600.
+spend. As built it was 11 sessions / 26 turns across **two** evaluator pairs —
+52 Phoenix judge calls, $0.0125 total — not the 60 calls the plan estimated for
+three pairs.
 
 ## Risks that change the order
 

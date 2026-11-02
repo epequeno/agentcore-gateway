@@ -96,8 +96,11 @@ export AWS_PROFILE=arch      # profiles are local; never committed
       marked historical
 - [x] Phase 1: ADOT spans, AgentCore Evaluations, deterministic evaluator,
       `FailureAnalysis`, and the Phoenix comparison — measured 2026-11-01
-- [x] Phase 2: identity — Cognito principal-at-tool, interceptor forwarding,
-      IAM-only MCP target, target-deletion revocation — measured 2026-11-01
+- [~] Phase 2: identity — Cognito principal-at-tool, interceptor forwarding,
+      IAM-only MCP target, target-deletion revocation — measured 2026-11-01.
+      The hosted consent-portal flow is **not** delivered: the portal rejects
+      Cognito sign-in with `SignInRejected`, recorded as a rejected path in
+      `RESULTS.md` and [docs/IDENTITY.md](docs/IDENTITY.md)
 - [x] Phase 3: Policy — parameter quota, Dogwood temporal rule, natural-language
       policy, agent refusal and CloudWatch decisions — measured 2026-11-02
 - [x] Phase 4: Tool surface — Lambda, MCP server, OpenAPI and Step Functions
