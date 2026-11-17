@@ -33,7 +33,7 @@ calls should reach a target directly. The last row is the one that tests it.
 Measured on the current tree with `bedrock-agentcore` 1.25.2 and adot 0.22.0.
 
 | Metric | Value | Command | n | Date |
-|---|---|---|---|---|---|
+|---|---|---|---|---|
 | Spans for every model and tool call | `invoke_agent`, `chat`, `execute_tool`, `mcp tools/call` present, each carrying `session.id` | `just eval` | 26 turns | 2026-11-01 |
 | Batch evaluation over scripted sessions | COMPLETED: 11/11 sessions, 26 turns | `just eval` | 11 | 2026-11-01 |
 | Built-in correctness | 92.3% (24/26 turns), 2 incorrect: s04 turn 3 (empty response), s06 turn 2 (claimed the tool was unavailable) | `just eval` | 26 | 2026-11-01 |
@@ -54,7 +54,7 @@ CloudWatch rows come from `just policy-check`; the natural-language row records
 the control-plane generation that produced the committed rule.
 
 | Metric | Value | Command | n | Date |
-|---|---|---|---|---|---|
+|---|---|---|---|---|
 | Parameter rule boundary | `amount=100` allowed, `amount=101` denied | `just policy-check` | 2 | 2026-11-02 |
 | Temporal rule | first CRM lookup allowed; second in the same policy session denied | `just policy-check` | 2 | 2026-11-02 |
 | Agent-facing refusal | "Policy refused the action ... blocked by the policy quota system" | `just policy-check` | 1 | 2026-11-02 |
